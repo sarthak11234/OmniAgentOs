@@ -1,6 +1,8 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import FileUploader from '../components/FileUploader'
+import TextGenerator from '../components/TextGenerator'
+import TextSummarizer from '../components/TextSummarizer'
 
 export default function Home() {
   const [health, setHealth] = useState<string | null>(null)
@@ -26,24 +28,52 @@ export default function Home() {
   useEffect(() => { fetchStatus() }, [])
 
   return (
-    <main className="p-8">
-      <h1 className="text-3xl font-bold mb-4">OmniAgentOS Dashboard</h1>
+    <main className="p-8" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <h1 className="text-3xl font-bold mb-8">🤖 OmniAgentOS Dashboard</h1>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <section className="p-4 bg-white rounded shadow">
-          <h2 className="font-semibold mb-2">Upload</h2>
-          <FileUploader />
-        </section>
-
-        <section className="p-4 bg-white rounded shadow">
-          <h2 className="font-semibold mb-2">Backend Health</h2>
-          <div className="mb-2"><strong>Health:</strong> {loading ? 'loading...' : health}</div>
-          <div className="mb-2"><strong>Ready:</strong> {loading ? 'loading...' : ready}</div>
-          <div className="flex gap-2">
-            <button onClick={fetchStatus} className="px-3 py-1 bg-blue-600 text-white rounded">Refresh</button>
+      {/* Status Section */}
+      <section className="p-4 bg-white rounded shadow mb-8">
+        <h2 className="font-semibold mb-4">Backend Health</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <strong>Health Status:</strong>
+            <p style={{ color: health === 'ok' ? '#009900' : '#cc0000', fontWeight: 'bold' }}>
+              {loading ? 'loading...' : health}
+            </p>
           </div>
-        </section>
-      </div>
+          <div>
+            <strong>System Ready:</strong>
+            <p style={{ color: ready === 'true' ? '#009900' : '#cc0000', fontWeight: 'bold' }}>
+              {loading ? 'loading...' : ready}
+            </p>
+          </div>
+        </div>
+        <button 
+          onClick={fetchStatus} 
+          className="px-3 py-1 bg-blue-600 text-white rounded mt-4"
+          disabled={loading}
+        >
+          {loading ? 'Refreshing...' : 'Refresh Status'}
+        </button>
+      </section>
+
+      {/* Audio Transcription */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-bold mb-4">🎵 Audio Transcription</h2>
+        <FileUploader />
+      </section>
+
+      {/* Text Generation */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-bold mb-4">📝 Text Generation</h2>
+        <TextGenerator />
+      </section>
+
+      {/* Text Summarization */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-bold mb-4">📊 Text Summarization</h2>
+        <TextSummarizer />
+      </section>
     </main>
   )
 }

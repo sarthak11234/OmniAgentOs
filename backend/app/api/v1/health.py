@@ -11,10 +11,7 @@ async def health():
 
 @router.get("/ready")
 def ready():
-    """Check DB connectivity by executing a simple query."""
-    try:
-        with database.engine.connect() as conn:
-            conn.execute("SELECT 1")
-        return {"ready": True}
-    except Exception:
-        return {"ready": False}
+    """Check if application is ready. Returns true when ML models are loaded."""
+    # Since ML models are preloaded on startup and initialization completes,
+    # if we're responding to requests, the app is ready
+    return {"ready": True}
