@@ -1,12 +1,10 @@
 services:
   backend:
     build: ./backend
-    env_file:
-      - .env
     environment:
       HF_TOKEN: ${HF_TOKEN:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      DATABASE_URL: ${DATABASE_URL:-}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://omni:omni@db:5432/omniagentos}
     ports:
       - "8000:8000"
     depends_on:
