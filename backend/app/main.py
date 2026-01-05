@@ -32,9 +32,23 @@ app.include_router(api_router, prefix="/api/v1")
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize all ML models on startup"""
+    """Initialize database and ML models on startup"""
     print("\n" + "="*60)
-    print("🚀 Initializing ML Models...")
+    print("🚀 Starting OmniAgentOS Backend...")
+    print("="*60)
+    
+    # Run database migrations first
+    try:
+        print("\n🗄️  Running database migrations...")
+        from app.db.migrate import run_migrations_and_seed
+        run_migrations_and_seed()
+    except Exception as e:
+        print(f"⚠️  Database migration warning: {e}")
+        print("⚠️  Continuing anyway - some features may be unavailable")
+    
+    # Initialize ML models
+    print("\n" + "="*60)
+    print("🤖 Initializing ML Models...")
     print("="*60)
     
     try:
@@ -59,5 +73,5 @@ async def startup_event():
         print(f"⚠️  Audio Transcription Model failed: {e}")
     
     print("\n" + "="*60)
-    print("✨ All models initialized successfully!")
+    print("✨ Backend initialized successfully!")
     print("="*60 + "\n")

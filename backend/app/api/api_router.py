@@ -1,8 +1,9 @@
 from fastapi import APIRouter
 # v1 routers
-from .v1 import text, audio, summarize, health, results
+from .v1 import text, audio, summarize, health, results, auth
 
 api_router = APIRouter()
+api_router.include_router(auth.router, prefix="/auth", tags=["Auth"])
 api_router.include_router(text.router, prefix="/text", tags=["Text"])
 api_router.include_router(audio.router, prefix="/audio", tags=["Audio"])
 api_router.include_router(summarize.router, prefix="/summarize", tags=["Summarize"])

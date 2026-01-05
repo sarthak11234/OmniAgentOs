@@ -9,4 +9,6 @@ transformers
 torch
 opencv-python-headless
 python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
 

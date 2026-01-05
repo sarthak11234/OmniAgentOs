@@ -34,17 +34,9 @@ def run_migrations_and_seed():
 
         try:
             with Session(engine) as session:
-                # seed a default user if none exist
-                existing = session.query(models.User).first()
-                if not existing:
-                    try:
-                        user = models.User(username="admin", email="admin@example.com")
-                        session.add(user)
-                        session.commit()
-                        print("✅ Seeded default user: admin")
-                    except IntegrityError:
-                        session.rollback()
-                        print("✅ Default user already exists")
+                # Skip seeding default user - users should register through auth endpoint
+                # The User model now requires password hashing
+                pass
         except Exception as e:
             print(f"⚠️ Warning: Could not seed database: {e}")
 
