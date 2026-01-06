@@ -35,7 +35,16 @@ export default function UploadPage() {
       })
 
       if (!res.ok) {
-        throw new Error(`Server error: ${res.status}`)
+        let errorMessage = `Server error: ${res.status}`
+        try {
+          const errorData = await res.json()
+          if (errorData.detail) {
+            errorMessage = errorData.detail
+          }
+        } catch (e) {
+          // If response is not JSON, use default message
+        }
+        throw new Error(errorMessage)
       }
 
       const data = await res.json()
@@ -52,7 +61,7 @@ export default function UploadPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header />
-      
+
       <main className="flex-1">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Page Header */}
@@ -182,7 +191,7 @@ export default function UploadPage() {
           <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
             <h3 className="font-semibold text-slate-900 mb-3">About Audio Transcription</h3>
             <p className="text-slate-600 text-sm mb-4">
-              The Audio Transcription Agent uses Whisper models to convert speech to text. 
+              The Audio Transcription Agent uses Whisper models to convert speech to text.
               Supported formats include MP3, WAV, FLAC, and other common audio formats.
             </p>
             <div className="flex items-center gap-2 text-sm text-slate-600">

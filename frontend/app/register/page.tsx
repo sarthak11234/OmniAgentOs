@@ -28,6 +28,8 @@ export default function RegisterPage() {
       return
     }
 
+
+
     setLoading(true)
 
     try {
@@ -91,7 +93,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header />
-      
+
       <main className="flex-1 flex items-center justify-center py-12 px-4">
         <div className="max-w-md w-full">
           <div className="bg-white border-2 border-slate-200 rounded-xl p-8 shadow-sm">

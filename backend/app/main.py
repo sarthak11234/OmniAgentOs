@@ -51,26 +51,26 @@ async def startup_event():
     print("🤖 Initializing ML Models...")
     print("="*60)
     
-    try:
-        print("\n📝 Loading Text Generation Model (GPT-2)...")
-        _ = hf_client.text_generator
-        print("✅ Text Generation Model loaded!")
-    except Exception as e:
-        print(f"⚠️  Text Generation Model failed: {e}")
+    # try:
+    #     print("\n🎵 Loading Audio Transcription Model (Whisper-small)...")
+    #     _ = hf_client.transcriber
+    #     print("✅ Audio Transcription Model loaded!")
+    # except Exception as e:
+    #     print(f"⚠️  Audio Transcription Model failed: {e}")
+
+    # try:
+    #     print("\n📝 Loading Text Generation Model (GPT-2)...")
+    #     _ = hf_client.text_generator
+    #     print("✅ Text Generation Model loaded!")
+    # except Exception as e:
+    #     print(f"⚠️  Text Generation Model failed: {e}")
     
-    try:
-        print("\n📊 Loading Summarization Model (BART)...")
-        _ = hf_client.summarizer
-        print("✅ Summarization Model loaded!")
-    except Exception as e:
-        print(f"⚠️  Summarization Model failed: {e}")
-    
-    try:
-        print("\n🎵 Loading Audio Transcription Model (Whisper-small)...")
-        _ = hf_client.transcriber
-        print("✅ Audio Transcription Model loaded!")
-    except Exception as e:
-        print(f"⚠️  Audio Transcription Model failed: {e}")
+    # try:
+    #     print("\n📊 Loading Summarization Model (BART)...")
+    #     _ = hf_client.summarizer
+    #     print("✅ Summarization Model loaded!")
+    # except Exception as e:
+    #     print(f"⚠️  Summarization Model failed: {e}")
     
     print("\n" + "="*60)
     print("✨ Backend initialized successfully!")

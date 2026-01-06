@@ -21,8 +21,21 @@ async def transcribe_endpoint(file: UploadFile = File(...)):
     Returns:
         TranscriptionResponse with filename and transcript
     """
-    transcript = await transcribe_audio(file)
-    return TranscriptionResponse(
-        filename=file.filename,
-        transcript=transcript
-    )
+    try:
+        transcript = await transcribe_audio(file)
+        return TranscriptionResponse(
+            filename=file.filename,
+            transcript=transcript
+        )
+    except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"Transcription Endpoint Error: {e}")
+        print(f"Traceback: {error_trace}")
+        
+        # Return the actual error to the client for debugging
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=500,
+            detail=f"Transcription failed: {str(e)} | Type: {type(e).__name__}"
+        )

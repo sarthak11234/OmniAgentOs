@@ -54,6 +54,18 @@ export default function Header() {
               Upload
             </Link>
             <Link
+              href="/text"
+              className="px-4 py-2 text-slate-700 hover:text-slate-900 font-medium rounded-lg hover:bg-slate-100 transition-colors"
+            >
+              Text Creation
+            </Link>
+            <Link
+              href="/summarize"
+              className="px-4 py-2 text-slate-700 hover:text-slate-900 font-medium rounded-lg hover:bg-slate-100 transition-colors"
+            >
+              Summarize
+            </Link>
+            <Link
               href="/health"
               className="px-4 py-2 text-slate-700 hover:text-slate-900 font-medium rounded-lg hover:bg-slate-100 transition-colors"
             >
@@ -67,9 +79,11 @@ export default function Header() {
             {user ? (
               <>
                 <div className="hidden sm:flex items-center space-x-2">
-                  <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center cursor-pointer shadow-sm">
-                    <span className="text-white font-semibold text-sm">{user.username?.[0]?.toUpperCase() || 'U'}</span>
-                  </div>
+                  <Link href="/profile">
+                    <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center cursor-pointer shadow-sm hover:ring-2 hover:ring-purple-200 transition-all">
+                      <span className="text-white font-semibold text-sm">{user.username?.[0]?.toUpperCase() || 'U'}</span>
+                    </div>
+                  </Link>
                 </div>
                 <button
                   onClick={handleLogout}
@@ -128,6 +142,20 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Upload
+              </Link>
+              <Link
+                href="/text"
+                className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Text Creation
+              </Link>
+              <Link
+                href="/summarize"
+                className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Summarize
               </Link>
               <Link
                 href="/health"

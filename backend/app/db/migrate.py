@@ -23,9 +23,11 @@ def run_migrations_and_seed():
         except (OperationalError, SQLAlchemyError) as e:
             if attempt < max_retries - 1:
                 print(f"🔄 Database not ready, retrying... ({attempt + 1}/{max_retries})")
+                print(f"   Error: {str(e)}")
                 time.sleep(retry_delay)
             else:
                 print(f"⚠️ Could not connect to database after {max_retries} attempts.")
+                print(f"⚠️ Error: {str(e)}")
                 print(f"⚠️ Continuing anyway - core ML features will work, but DB features may be unavailable")
                 return
 

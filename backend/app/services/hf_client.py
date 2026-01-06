@@ -1,6 +1,7 @@
 import os
 from typing import Optional
 import io
+import tempfile
 
 # Import transformers pipelines for local model execution
 from transformers import pipeline
@@ -26,10 +27,10 @@ class HFClient:
     def transcriber(self):
         """Lazy load speech recognition pipeline"""
         if self._transcriber is None:
-            print("Loading Whisper model...")
+            print("Loading Whisper model (tiny)...")
             self._transcriber = pipeline(
                 "automatic-speech-recognition",
-                model="openai/whisper-small",
+                model="openai/whisper-tiny",
                 device=0 if self.device == "cuda" else -1
             )
         return self._transcriber
@@ -38,23 +39,22 @@ class HFClient:
     def text_generator(self):
         """Lazy load text generation pipeline"""
         if self._text_generator is None:
-            print("Loading GPT-2 model...")
+            print("Loading GPT-2 model (distilled)...")
             self._text_generator = pipeline(
                 "text-generation",
-                model="gpt2",
-                device=0 if self.device == "cuda" else -1,
-                max_length=256
+                model="distilgpt2",
+                device=0 if self.device == "cuda" else -1
             )
         return self._text_generator
-    
+
     @property
     def summarizer(self):
         """Lazy load summarization pipeline"""
         if self._summarizer is None:
-            print("Loading BART model...")
+            print("Loading BART model (distilled)...")
             self._summarizer = pipeline(
                 "summarization",
-                model="facebook/bart-large-cnn",
+                model="sshleifer/distilbart-cnn-12-6",
                 device=0 if self.device == "cuda" else -1
             )
         return self._summarizer
@@ -64,10 +64,27 @@ class HFClient:
         temp_path = None
         try:
             print(f"Transcribing {file.filename}...")
+            
+            # Debug: Check environment
+            import shutil
+            ffmpeg_path = shutil.which("ffmpeg")
+            print(f"DEBUG: ffmpeg path found: {ffmpeg_path}")
+            print(f"DEBUG: Current PATH: {os.environ.get('PATH')}")
+            
+            if not ffmpeg_path:
+                print("DEBUG: FFmpeg NOT FOUND in PATH")
+                # Try to forcefully add Chocolatey bin if missing
+                if "chocolatey" not in os.environ.get('PATH', '').lower():
+                     print("DEBUG: Attempting to add Chocolatey bin to PATH")
+                     os.environ["PATH"] += r";C:\ProgramData\chocolatey\bin"
+                     ffmpeg_path = shutil.which("ffmpeg")
+                     print(f"DEBUG: ffmpeg path after update: {ffmpeg_path}")
+
             file_content = await file.read()
             
-            # Save to temp file for processing
-            temp_path = f"/tmp/{file.filename}"
+            # Save to temp file for processing (cross-platform)
+            temp_dir = tempfile.gettempdir()
+            temp_path = os.path.join(temp_dir, file.filename)
             with open(temp_path, 'wb') as f:
                 f.write(file_content)
             
@@ -107,8 +124,7 @@ class HFClient:
                 except Exception as cleanup_error:
                     print(f"Cleanup error: {cleanup_error}")
 
-    
-    async def generate_text(self, prompt: str, max_length: int = 256) -> str:
+    async def generate_text(self, prompt: str, max_length: int = 512) -> str:
         """Generate text using local GPT-2 model"""
         try:
             print(f"Generating text for prompt: {prompt[:50]}...")
@@ -116,10 +132,13 @@ class HFClient:
             # Generate text
             results = self.text_generator(
                 prompt,
-                max_length=min(max_length, 256),
+                max_length=min(max_length, 512),
                 num_return_sequences=1,
-                temperature=0.7,
-                top_p=0.95
+                temperature=0.8,
+                top_p=0.92,
+                repetition_penalty=1.2,
+                do_sample=True,
+                truncation=True
             )
             
             generated = results[0].get("generated_text", "")
@@ -145,7 +164,8 @@ class HFClient:
                 text,
                 min_length=min_length,
                 max_length=max_summary_length,
-                do_sample=False
+                do_sample=False,
+                truncation=True
             )
             
             summary = results[0].get("summary_text", "")
