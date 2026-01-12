@@ -120,15 +120,15 @@ graph TD
     Root[OmniContext]
     
     subgraph Backend [backend/cortex]
-        Core[core<br/>(Config, Logs)]
-        Events[events<br/>(Bus, WebSockets)]
-        Memory[memory<br/>(ChromaDB)]
-        Models[models<br/>(Llama.cpp, Whisper)]
+        Core["core<br/>(Config, Logs)"]
+        Events["events<br/>(Bus, WebSockets)"]
+        Memory["memory<br/>(ChromaDB)"]
+        Models["models<br/>(Llama.cpp, Whisper)"]
     end
     
     subgraph Satellites
-        Code[satellite-code<br/>(VS Code)]
-        Meet[satellite-meet<br/>(Python/Desktop)]
+        Code["satellite-code<br/>(VS Code)"]
+        Meet["satellite-meet<br/>(Python/Desktop)"]
     end
     
     Root --> Backend
