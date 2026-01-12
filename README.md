@@ -97,21 +97,7 @@ graph TD
 
 ---
 
-## 🔄 Workflow Scenarios
-
-### Workflow 1: The "Lazy" Meeting Implementation
-*Scenario: You are in a Zoom call. The team decides to change the API authentication method.*
-
-1.  **Capture**: `Satellite-Meet` detects voice. It streams audio to `Cortex`.
-2.  **Process**: `Cortex` runs Whisper. It hears "Let's switch to JWT tokens".
-3.  **Index**: This sentence is vectorized and tagged `#meeting` `#auth` `#jwt`.
-4.  **Recall**: 2 hours later, you open `auth.py` in VS Code.
-5.  **Action**: You ask the Chat: *"What did we decide about auth?"*
-6.  **Response**: The AI pulls the exact sentence from 2 hours ago and says: *"The team decided to switch to JWT tokens. Shall I scaffold the JWT logic?"*
-
----
-
-## 📂 Project Structure
+##  Project Structure
 
 This is how the **OmniContext** codebase is organized to support the Hub-and-Spoke architecture.
 
@@ -179,6 +165,18 @@ OmniContext/
 └── README.md
 ```
 
+
+## 🔄 Workflow Scenarios
+
+### Workflow 1: The "Lazy" Meeting Implementation
+*Scenario: You are in a Zoom call. The team decides to change the API authentication method.*
+
+1.  **Capture**: `Satellite-Meet` detects voice. It streams audio to `Cortex`.
+2.  **Process**: `Cortex` runs Whisper. It hears "Let's switch to JWT tokens".
+3.  **Index**: This sentence is vectorized and tagged `#meeting` `#auth` `#jwt`.
+4.  **Recall**: 2 hours later, you open `auth.py` in VS Code.
+5.  **Action**: You ask the Chat: *"What did we decide about auth?"*
+6.  **Response**: The AI pulls the exact sentence from 2 hours ago and says: *"The team decided to switch to JWT tokens. Shall I scaffold the JWT logic?"*
 
 ### Workflow 2: The "Context-Aware" Bug Fix
 *Scenario: You are reading a StackOverflow article about a specific error.*

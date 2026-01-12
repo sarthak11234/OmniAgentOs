@@ -40,8 +40,9 @@ class EventBus:
             
             logger.debug(f"Received Event: {event_dict.get('type')} from {event_dict.get('source')}")
             
-            # TODO: Dispatch to StreamManager
-            # await stream_manager.process(event)
+            # Dispatch to StreamManager
+            from backend.cortex.events.stream_manager import stream_manager
+            await stream_manager.process(event_dict)
             
             # Echo back for acknowledgement (temporary)
             await websocket.send_text(json.dumps({"status": "received", "type": event_dict.get('type')}))
