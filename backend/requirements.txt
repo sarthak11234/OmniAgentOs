@@ -1,14 +1,24 @@
-fastapi
-uvicorn
-httpx
-pydantic
-sqlalchemy
-psycopg2-binary
-python-dotenv
-transformers
-torch
-opencv-python-headless
-python-multipart
-python-jose[cryptography]
-passlib[bcrypt]
+# Core API
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9
 
+# Real-time Communication
+websockets>=12.0
+
+# Database & Vector Store
+chromadb>=0.4.24
+# pysqlite3-binary  # Uncomment if on Linux/Old Python
+
+# AI & Inference (High Performance)
+# Make sure to install C++ compilers for llama-cpp-python
+llama-cpp-python>=0.2.60
+openai-whisper>=20231117
+torch --index-url https://download.pytorch.org/whl/cu118  # Default to CUDA 11.8
+
+# Utilities
+pydantic>=2.7.0
+pydantic-settings>=2.2.0
+python-dotenv>=1.0.1
+sounddevice>=0.4.6  # For Satellite-Meet (Audio Capture)
+numpy>=1.26.0

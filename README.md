@@ -77,11 +77,11 @@ graph TD
     end
 
     subgraph "Cortex Layer (The Hub)"
-        Bus{Event Bus (WebSocket)}
+        Bus{"Event Bus (WebSocket)"}
         
         Bus -->|Raw Events| StreamManager[Stream Manager]
         
-        StreamManager -->|Text| VectorStore[(ChromaDB)]
+        StreamManager -->|Text| VectorStore[("ChromaDB")]
         StreamManager -->|Audio| Whisper[Whisper Engine]
         
         Whisper -->|Transcript| VectorStore
