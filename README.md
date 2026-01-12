@@ -3,20 +3,17 @@
 > **The Unified Context Operating System for Developers.**
 > *Evolution of the OmniAgentOS Project*
 
-**OmniContext** is an open-source, local-first AI "Brain" that bridges the gap between your code, your meetings, and your research. It captures context from everywhere—your IDE, your system audio, and your browser—so you never have to copy-paste context again.
+**OmniContext** is an open-source, local-first AI "Brain" that bridges the gap between your code, your meetings, and your research. It captures context from everywhere—your IDE, your system audio, and your browser—so you verify strictly on your machine.
 
 ---
 
 ## 📑 Table of Contents
 1.  [Abstract & Vision](#-abstract--vision)
 2.  [The Core Problem](#-the-core-problem)
-3.  [The OmniContext Solution](#-the-omnicontext-solution)
-4.  [Architecture Deep Dive](#-architecture-deep-dive)
-    *   [The Cortex (Backend)](#1-the-cortex-backend)
-    *   [The Event Bus Protocol](#2-the-event-bus-protocol)
-    *   [The Satellites](#3-the-satellites)
-5.  [Model Strategy & Hardware](#-model-strategy--hardware)
-6.  [Security & Privacy](#-security--privacy-manifesto)
+3.  [The Solution](#-the-omnicontext-solution)
+4.  [Technology Stack (High-Performance)](#-technology-stack-high-performance)
+5.  [Architecture & Design](#-architecture--design)
+6.  [Workflow Scenarios](#-workflow-scenarios)
 7.  [Legacy History (V1)](#-legacy-history-omniagentos-v1)
 8.  [Roadmap](#-roadmap)
 
@@ -24,204 +21,203 @@
 
 ## 🔭 Abstract & Vision
 
-We are entering the era of **Contextual AI**. The limitations of current AI tools are not in their intelligence (LLMs are smart enough), but in their **blindness**. Your AI assistant is isolated in a browser tab or a specific application, unaware of the rich context of your entire workflow.
-
-**OmniContext** envisions a future where your AI is an **Operating System Service**, not an app. It runs in the background, securely perceiving what you perceive (audio, code, text), building a "Knowledge Graph" of your work, and offering proactive assistance.
-
-**The End Goal**: "Computer, implement the changes discussed in the design review meeting this morning."
-*To answer this, the system must know:*
-1.  What was said in the meeting (Audio Context).
-2.  Which file is the "design review" referring to (Code Context).
-3.  How to implement code (Model Capability).
+We are entering the era of **Contextual AI**. Your AI assistant is isolated in a browser tab or a specific application, unaware of the rich context of your entire workflow. **OmniContext** envisions a future where your AI is an **Operating System Service**, securely perceiving what you perceive (audio, code, text) to build a "Knowledge Graph" of your work.
 
 ---
 
 ## 💥 The Core Problem
 
-Today's developer workflow is fragmented across three distinct "Context Silos":
+Today's developer workflow is fragmented across "Context Silos":
+1.  **Communication Silo (Zoom/Slack)**: Ephemeral decisions lost after the call.
+2.  **Execution Silo (VS Code)**: Code that lacks business logic context.
+3.  **Knowledge Silo (Browser)**: Research that is forgotten instantly.
 
-1.  **The Communication Silo (Zoom/Slack/Teams)**:
-    *   *Data*: Decisions, requirements, changes in direction.
-    *   *Problem*: This data is ephemeral. Once the meeting ends, the context is lost or buried in a transcript that your Code Editor doesn't know about.
-
-2.  **The Execution Silo (VS Code/Terminal)**:
-    *   *Data*: Source code, error logs, file structure.
-    *   *Problem*: Copilot sees your file, but it doesn't know *why* you are writing it. It lacks the business logic defined in the meeting.
-
-3.  **The Knowledge Silo (Browser/Docs)**:
-    *   *Data*: StackOverflow answers, Documentation, Jira tickets.
-    *   *Problem*: You research a solution in Chrome, then switch to VS Code, and the AI has already forgotten what you just read.
-
-**Result**: The user acts as the "Human Router", constantly copy-pasting text between these silos to give the AI enough context to be useful.
+**Result**: The user acts as the "Human Router", constantly copy-pasting text between these silos.
 
 ---
 
 ## 💡 The OmniContext Solution
 
 We propose a **Hub-and-Spoke** architecture to break down these silos.
-
-*   **The Hub ("Cortex")**: A local server that acts as the "Long-Term Memory" and "Reasoning Engine".
-*   **The Spokes ("Satellites")**: Lightweight background processes that capture data from specific apps and stream it to the Hub.
-
-This creates a **Unified Context Graph**:
-`Meeting(Time: 10AM) --related_to--> JiraTicket(ID: 123) --related_to--> CodeFile(auth.py)`
+*   **The Hub ("Cortex")**: A local server acting as "Long-Term Memory".
+*   **The Spokes ("Satellites")**: Background processes streaming data to the Hub.
 
 ---
 
-## 🏗 Architecture Deep Dive
+## ⚡ Technology Stack (High-Performance)
 
-### 1. The Cortex (Backend)
-The Cortex is the central server (FastAPI) running on `localhost:8000`. It is **stateful** and **event-driven**.
+We analyzed options (Python vs Rust vs Go) and selected the optimal stack for **Response Time** and **Memory Efficiency**.
 
-*   **Stream Manager**:
-    *   Accepts WebSocket connections from Satellites.
-    *   Handles "Backpressure" (if the meeting audio is coming too fast, it buffers it).
-    *   Performs "Diarization" (identifying who is speaking).
+### 1. The Nervous System: Python (FastAPI)
+*   **Decision**: We chose **FastAPI** over Rust/Go.
+*   **Why**: While Rust is faster at HTTP, the application bottleneck is Model Inference. Python allows Zero-Copy memory sharing with the ML engines, whereas Rust would require complex IPC, actually slowing down the system.
 
-*   **Memory Service (ChromaDB)**:
-    *   Instead of saving raw text, we save **Embeddings**.
-    *   We use a **Vector Database** (Chroma) to store every "Event" (a sentence spoken, a function written).
-    *   **Retrieval Strategy**: We use Hybrid Search (Vector Similarity + Time-Decay). Recent events are weighted higher.
+### 2. The Brain: Llama.cpp (via Python Bindings)
+*   **Decision**: **Llama.cpp (GGUF Quantization)** over Standard Transformers.
+*   **Why**:
+    *   **Speed**: Written in optimized C++. Runs 4x faster on CPU/Apple Silicon.
+    *   **Memory**: Uses 4-bit quantization. Run a 70B parameter model on a 24GB consumer GPU (impossible with standard transformers).
 
-### 2. The Event Bus Protocol
-All Satellites communicate with Cortex using a strict JSON Schema over WebSockets.
-
-**Example: Audio Event (from Desktop)**
-```json
-{
-  "type": "audio_chunk",
-  "source": "desktop_audio",
-  "timestamp": 1704381234,
-  "payload": {
-    "format": "pcm_16bit",
-    "sample_rate": 16000,
-    "data": "<base64_encoded_audio>"
-  }
-}
-```
-
-**Example: Code Event (from VS Code)**
-```json
-{
-  "type": "code_context",
-  "source": "vscode_extension",
-  "timestamp": 1704381240,
-  "payload": {
-    "filename": "auth_service.py",
-    "cursor_line": 42,
-    "content_snippet": "def login(user): ..."
-  }
-}
-```
-
-### 3. The Satellites
-
-#### 🛰 Satellite-Meet (The Scribe)
-*   **Implementation**: Python script using `sounddevice` and system-level audio loopback (WASAPI on Windows, Blackhole on macOS).
-*   **Behavior**:
-    *   Runs in the System Tray.
-    *   Detects Voice Activity (VAD).
-    *   Only streams when speech is detected to save bandwidth/compute.
-
-#### 🛰 Satellite-Code (The Pair Programmer)
-*   **Implementation**: VS Code Extension (TypeScript).
-*   **Behavior**:
-    *   **Passive Mode**: Watches file switches and edits. Indexes "Active Context" into the Brain.
-    *   **Active Mode**: A Chat Sidebar where you can ask, "What did we say about this function?"
+### 3. The Memory: ChromaDB
+*   **Decision**: **ChromaDB (Embedded)** over Postgres.
+*   **Why**: It runs *inside* the process. Zero network overhead for retrieval (<10ms).
 
 ---
 
-## 🧠 Model Strategy & Hardware
+## 🏗 Architecture & Design
 
-OmniContext is designed to run **100% Locally** using the HuggingFace ecosystem. We support a tiered model strategy:
+The "Cortex" acts as the central router for all data streams.
 
-### Tier A: "The Laptop User" (Efficiency)
-*For MacBook Air M1/M2 or Laptops with 16GB RAM.*
-*   **LLM**: **Llama-3-8B-Instruct** (Quantized Q4_K_M).
-    *   *VRAM Usage*: ~5-6 GB.
-    *   *Speed*: Fast token generation.
-*   **Transcription**: **Whisper-Base**.
-    *   *Speed*: Real-time.
-    *   *Accuracy*: Good for clear meetings.
+```mermaid
+graph TD
+    subgraph "Satellite Layer (Producers)"
+        VS[VS Code Extension] -->|Stream Code| Bus
+        Desktop[Audio Daemon] -->|Stream Audio| Bus
+        Chrome[Browser Ext] -->|Stream Docs| Bus
+    end
 
-### Tier B: "The Workstation" (Power)
-*For Desktops with NVIDIA RTX 3090/4090 (24GB VRAM).*
-*   **LLM**: **Mixtral-8x7B** or **Llama-3-70B** (high quantization).
-    *   *VRAM Usage*: ~20-22 GB.
-    *   *Capability*: GPT-4 class reasoning. Can handle complex architectural queries.
-*   **Transcription**: **Whisper-Large-V3**.
-    *   *Accuracy*: Professional grade, handles accents/noise perfectly.
+    subgraph "Cortex Layer (The Hub)"
+        Bus{Event Bus (WebSocket)}
+        
+        Bus -->|Raw Events| StreamManager[Stream Manager]
+        
+        StreamManager -->|Text| VectorStore[(ChromaDB)]
+        StreamManager -->|Audio| Whisper[Whisper Engine]
+        
+        Whisper -->|Transcript| VectorStore
+    end
+    
+    subgraph "Inference Layer (Reasoning)"
+        UserQuery[User Question] -->|Request| RAG[RAG Pipeline]
+        VectorStore -->|Context| RAG
+        RAG -->|Prompt| LLM[Llama.cpp Engine]
+        LLM -->|Answer| VS
+    end
+```
+
+---
+
+## 🔄 Workflow Scenarios
+
+### Workflow 1: The "Lazy" Meeting Implementation
+*Scenario: You are in a Zoom call. The team decides to change the API authentication method.*
+
+1.  **Capture**: `Satellite-Meet` detects voice. It streams audio to `Cortex`.
+2.  **Process**: `Cortex` runs Whisper. It hears "Let's switch to JWT tokens".
+3.  **Index**: This sentence is vectorized and tagged `#meeting` `#auth` `#jwt`.
+4.  **Recall**: 2 hours later, you open `auth.py` in VS Code.
+5.  **Action**: You ask the Chat: *"What did we decide about auth?"*
+6.  **Response**: The AI pulls the exact sentence from 2 hours ago and says: *"The team decided to switch to JWT tokens. Shall I scaffold the JWT logic?"*
+
+---
+
+## 📂 Project Structure
+
+This is how the **OmniContext** codebase is organized to support the Hub-and-Spoke architecture.
+
+```mermaid
+graph TD
+    Root[OmniContext]
+    
+    subgraph Backend [backend/cortex]
+        Core[core<br/>(Config, Logs)]
+        Events[events<br/>(Bus, WebSockets)]
+        Memory[memory<br/>(ChromaDB)]
+        Models[models<br/>(Llama.cpp, Whisper)]
+    end
+    
+    subgraph Satellites
+        Code[satellite-code<br/>(VS Code)]
+        Meet[satellite-meet<br/>(Python/Desktop)]
+    end
+    
+    Root --> Backend
+    Root --> Satellites
+```
+
+```text
+OmniContext/
+├── backend/
+│   ├── cortex/                     # The "Brain" Application
+│   │   ├── __init__.py
+│   │   ├── main.py                 # FastAPI App & Entry Point
+│   │   ├── core/
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py           # Envs, Path constants (Data Dir)
+│   │   │   └── logging.py          # Structured Logger
+│   │   ├── events/
+│   │   │   ├── __init__.py
+│   │   │   ├── bus.py              # WebSocket Connection Manager
+│   │   │   └── protocol.py         # Pydantic Schemas (AudioEvent, CodeEvent)
+│   │   ├── memory/
+│   │   │   ├── __init__.py
+│   │   │   ├── vector_store.py     # ChromaDB Wrapper (Insert/Query)
+│   │   │   └── retrieval.py        # Logic for RAG & Time-decay search
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   ├── llm.py              # Llama.cpp Engine Wrapper
+│   │   │   └── transcription.py    # Whisper Streaming Logic
+│   │   └── api/
+│   │       ├── __init__.py
+│   │       ├── websocket.py        # /ws/stream endpoint
+│   │       └── routes.py           # Standard REST (Health, Config)
+│   ├── data/                       # IGNORED BY GIT
+│   │   ├── chroma/                 # VectorDB Persistence
+│   │   └── uploads/                # Temp audio chunks
+│   └── requirements.txt            # fastpi, uvicorn, websockets, chromadb...
+├── satellites/
+│   ├── code/                       # VS Code Extension
+│   │   ├── package.json
+│   │   └── src/
+│   │       ├── extension.ts        # Activator
+│   │       └── client.ts           # WebSocket Client
+│   ├── meet/                       # Desktop Daemon
+│   │   ├── main.py                 # System Tray Entry
+│   │   └── audio_capture.py        # PyAudio Loopback
+│   └── web/                        # Chrome Extension
+│       └── manifest.json
+└── README.md
+```
+
+
+### Workflow 2: The "Context-Aware" Bug Fix
+*Scenario: You are reading a StackOverflow article about a specific error.*
+
+1.  **Capture**: `Satellite-Web` scrapes the StackOverflow solution required to fix your bug.
+2.  **Index**: `Cortex` stores the solution strategy.
+3.  **Action**: You switch to VS Code and highlight the error.
+4.  **Suggestion**: Cortex Proactively suggests: *"Based on the page you just viewed, you should wrap this in a try/catch block like this..."*
 
 ---
 
 ## 🔒 Security & Privacy Manifesto
 
 **"Your Context is Your IP."**
-
-In a corporate environment, sending your proprietary code and confidential meeting audio to OpenAI/Anthropic is often a security violation.
-
-1.  **Local-First / Local-Only**:
-    *   OmniContext sends **ZERO** data to the cloud.
-    *   All inference happens on your GPU.
-    *   All vector data is stored in `./data/chroma` on your disk.
-
-2.  **Air-Gapped Capable**:
-    *   You can unplug your internet cable, and OmniContext will still strictly function (once models are downloaded).
+1.  **Local-First / Local-Only**: OmniContext sends **ZERO** data to the cloud.
+2.  **Air-Gapped Capable**: You can unplug your internet cable, and OmniContext will still function.
 
 ---
 
 ## 📜 Legacy History: OmniAgentOS (V1)
 
-**OmniAgentOS (V1)** was our proof-of-concept. It demonstrated that Python and FastAPI could orchestrate local models.
-
-**Key V1 Features:**
-*   Stateless REST API.
-*   Simple "Text-In, Text-Out" endpoints.
-*   Basic `hf_client.py` wrapper around Transformers.
-
-**Why we moved to V2**:
-V1 was too slow and disconnected. Using REST for audio meant uploading a file *after* the meeting ended. V2's WebSockets allow us to transcribe *during* the meeting, so the context is ready the second you hang up.
+**OmniAgentOS (V1)** was our proof-of-concept. It used a simple REST API and standard Transformers.
+*   **Limitation**: It was "Reactive" and stateless.
+*   **Improvements in V2**: Moved to WebSockets for real-time streams and Llama.cpp for performance.
 
 ---
 
-## � Usage & Installation
-
-### prerequisites
-*   **Python**: 3.10+
-*   **Hardware**: NVIDIA GPU (CUDA) or Apple Silicon (MPS). CPU-only is possible but slow.
-
-### Quick Start
-1.  **Clone**: `git clone ...`
-2.  **Install Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # or venv\Scripts\activate
-    pip install -r backend/requirements.txt
-    ```
-3.  **Run Cortex**:
-    ```bash
-    uvicorn backend.main:app --reload --port 8000
-    ```
-4.  **Connect Satellites**:
-    *   (Instructions to follow in Phase 2 & 3)
-
----
-
-## 🗺 Detailed Roadmap
+## 🗺 Roadmap
 
 *   **Phase 1: Cortex Foundation** (Current)
     *   [ ] Event Bus Implementation.
     *   [ ] ChromaDB Integration.
     *   [ ] Streaming Whisper Pipeline.
 *   **Phase 2: VS Code Satellite**
-    *   [ ] Extension Scaffold.
     *   [ ] Sidebar Chat UI.
     *   [ ] "Active File" Watcher.
 *   **Phase 3: Audio Satellite**
     *   [ ] System Audio Capture.
     *   [ ] Voice Activity Detection.
-*   **Phase 4: The Unification**
-    *   [ ] RAG Pipeline (Connecting Audio -> Code).
 
 ---
 *Built with ❤️ by the Open Source Community*
