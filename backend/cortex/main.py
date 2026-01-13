@@ -30,11 +30,12 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
+    from backend.cortex.memory.vector_store import HAS_CHROMA
     return {
         "status": "online",
         "system": "OmniContext Cortex v2.0",
         "modules": {
-            "memory": "ChromaDB (Inactive)",
+            "memory": "ChromaDB (Active)" if HAS_CHROMA else "Mock Memory (Active)",
             "llm": "Llama.cpp (Inactive)",
             "audio": "Whisper (Inactive)"
         }
