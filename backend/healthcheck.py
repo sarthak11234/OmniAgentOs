@@ -57,7 +57,7 @@ async def main():
     print("=== OmniContext E2E Healthcheck ===\n")
     
     if not check_server_http():
-        print("\n[CRITICAL] Cortex Brain is DEAD. Please run: uvicorn backend.cortex.main:app --reload")
+        print("\n[CRITICAL] Cortex Brain is DEAD. Please run: python -m uvicorn backend.cortex.main:app --reload")
         sys.exit(1)
         
     ws_success = await check_websocket_stream()
