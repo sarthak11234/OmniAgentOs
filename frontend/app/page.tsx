@@ -306,7 +306,7 @@ export default function Home() {
               </Link>
 
               <Link
-                href="/tasks"
+                href="/results"
                 className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-8 rounded-xl hover:shadow-xl transition-all hover:-translate-y-1"
               >
                 <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
@@ -314,7 +314,7 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-2">View Tasks</h3>
+                <h3 className="text-xl font-bold mb-2">View Results</h3>
                 <p className="text-purple-100">Check your task history and view processing results</p>
               </Link>
 

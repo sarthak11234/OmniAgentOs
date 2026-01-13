@@ -7,8 +7,10 @@ import urllib.request
 
 def check_server_http():
     print("[1/3] Checking HTTP Health Endpoint...", end=" ")
+    print("[1/3] Checking HTTP Health Endpoint...", end=" ")
     try:
-        with urllib.request.urlopen("http://localhost:8000/health") as response:
+        # Check the updated Unified API endpoint
+        with urllib.request.urlopen("http://localhost:8000/api/v1/health/health") as response:
             if response.getcode() == 200:
                 print("✅ Online")
                 return True
@@ -57,7 +59,7 @@ async def main():
     print("=== OmniContext E2E Healthcheck ===\n")
     
     if not check_server_http():
-        print("\n[CRITICAL] Cortex Brain is DEAD. Please run: python -m uvicorn backend.cortex.main:app --reload")
+        print("\n[CRITICAL] Backend is DEAD. Please run: uvicorn app.main:app --reload")
         sys.exit(1)
         
     ws_success = await check_websocket_stream()

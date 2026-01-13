@@ -7,14 +7,17 @@ python-multipart>=0.0.9
 websockets>=12.0
 
 # Database & Vector Store
+sqlalchemy>=2.0.0
+alembic>=1.13.0
+psycopg2-binary>=2.9.9
 chromadb>=0.4.24
 # pysqlite3-binary  # Uncomment if on Linux/Old Python
 
 # AI & Inference (High Performance)
 # Make sure to install C++ compilers for llama-cpp-python
-llama-cpp-python>=0.2.60
-openai-whisper>=20231117
-torch --index-url https://download.pytorch.org/whl/cu118  # Default to CUDA 11.8
+# llama-cpp-python>=0.2.60
+# openai-whisper>=20231117
+# torch --index-url https://download.pytorch.org/whl/cu118  # Default to CUDA 11.8
 
 # Utilities
 pydantic>=2.7.0
