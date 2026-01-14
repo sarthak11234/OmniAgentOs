@@ -1,5 +1,6 @@
 import logging
 import json
+import base64
 from cortex.memory.vector_store import memory
 from cortex.events.protocol import CortexEvent
 
@@ -49,14 +50,41 @@ class StreamManager:
 
     async def _handle_audio(self, event: dict):
         """
-        TODO: Pipe to Whisper Streaming Model.
-        For Phase 1 MVP, we just log it.
+        Pipe to Whisper Model for transcription and store in memory.
         """
-        # payload = event.get("payload")
-        # audio_data = payload.get("data")
-        # transcript = whisper_model.transcribe(audio_data)
-        # memory.add_event(transcript, ...)
-        pass
+        payload = event.get("payload", {})
+        b64_data = payload.get("data")
+        
+        if not b64_data:
+            return
+
+        try:
+            from cortex.models.transcription import transcription_engine
+            
+            # Decode base64 audio
+            audio_bytes = base64.b64decode(b64_data)
+            
+            # Transcribe
+            transcript = transcription_engine.transcribe(audio_bytes)
+            
+            if transcript:
+                logger.info(f"Transcribed Audio: {transcript}")
+                
+                # Save to Memory
+                memory.add_event(
+                    content=transcript,
+                    metadata={
+                        "source": event.get("source"),
+                        "type": "audio",
+                        "device": payload.get("device"),
+                        "timestamp": event.get("timestamp")
+                    }
+                )
+            else:
+                logger.debug("Transcription resulted in empty text.")
+                
+        except Exception as e:
+            logger.error(f"Error processing audio chunk: {e}")
 
     async def _handle_web(self, event: dict):
         """

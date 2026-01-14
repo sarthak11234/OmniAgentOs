@@ -51,6 +51,22 @@ export class CortexClient {
         }
     }
 
+    public async query(query: string): Promise<{ answer: string; context_used: string }> {
+        const response = await fetch('http://localhost:8000/api/query', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Cortex Brain returned error: ${response.statusText}`);
+        }
+
+        return await response.json() as { answer: string; context_used: string };
+    }
+
     public dispose() {
         this.ws?.close();
         this.statusItem.dispose();

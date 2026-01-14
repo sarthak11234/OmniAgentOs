@@ -1,42 +1,52 @@
 import logging
-from typing import List, Dict, Any
+from typing import List, Dict, Optional
 from cortex.memory.vector_store import memory
+from cortex.core.config import config
 
-logger = logging.getLogger("cortex.retrieval")
+logger = logging.getLogger("cortex.memory.retrieval")
 
-class ContextRetrieval:
+class RetrievalService:
     """
-    Logic for retrieving relevant context from Memory (ChromaDB)
-    based on user queries or current activity.
+    Handles fetching the most relevant context for a given query.
+    Combines semantic search results from ChromaDB into a formatted context block.
     """
     
-    def __init__(self):
-        self.memory = memory
-
-    def search_context(self, query: str, limit: int = 5) -> List[str]:
+    async def get_relevant_context(self, query: str, limit: int = 5, event_type: Optional[str] = None) -> str:
         """
-        Simple semantic search against the vector store.
-        Returns a list of content strings.
+        Queries the vector store and returns a formatted string of the matching documents.
         """
-        logger.info(f"Searching context for: '{query}'")
-        
         try:
-            results = self.memory.search(query, limit=limit)
+            filters = {}
+            if event_type:
+                filters["type"] = event_type
             
-            # ChromaDB returns a dict with 'documents', 'metadatas', etc. which are lists of lists.
-            # We flatten this for the consumer.
-            documents = results.get("documents", [])
+            # ChromaDB expects None instead of {} for no filter
+            search_filters = filters if filters else None
+
+            # 1. Search Vector Store
+            results = memory.search(query, limit=limit, filters=search_filters)
             
-            if not documents:
-                return []
+            if not results or not results.get("documents"):
+                return "No relevant context found."
+
+            # 2. Format Context
+            documents = results.get("documents")[0]
+            metadatas = results.get("metadatas")[0]
+            
+            formatted_context = []
+            for doc, meta in zip(documents, metadatas):
+                source = meta.get("source", "unknown")
+                timestamp = meta.get("timestamp", "unknown")
+                m_type = meta.get("type", "context")
                 
-            # documents is [[doc1, doc2, ...]]
-            flat_docs = documents[0]
-            return flat_docs
-            
+                header = f"--- Source: {source} | Type: {m_type} | Time: {timestamp} ---"
+                formatted_context.append(f"{header}\n{doc}")
+
+            return "\n\n".join(formatted_context)
+
         except Exception as e:
-            logger.error(f"Retrieval failed: {e}")
-            return []
+            logger.error(f"Error during context retrieval: {e}")
+            return f"Error retrieving context: {str(e)}"
 
 # Global Instance
-retrieval = ContextRetrieval()
+retriever = RetrievalService()
