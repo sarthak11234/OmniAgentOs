@@ -1,7 +1,7 @@
 import logging
 import json
-from backend.cortex.memory.vector_store import memory
-from backend.cortex.events.protocol import CortexEvent
+from cortex.memory.vector_store import memory
+from cortex.events.protocol import CortexEvent
 
 logger = logging.getLogger("cortex.processing")
 

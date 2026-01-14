@@ -1,6 +1,6 @@
 import logging
 from typing import List, Dict, Any
-from backend.cortex.memory.vector_store import memory
+from cortex.memory.vector_store import memory
 
 logger = logging.getLogger("cortex.retrieval")
 

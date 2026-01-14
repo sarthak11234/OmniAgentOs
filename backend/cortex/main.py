@@ -14,7 +14,7 @@ app = FastAPI(
 )
 
 # Import Routers
-from backend.cortex.api.websocket import router as ws_router
+from cortex.api.websocket import router as ws_router
 
 # Register Routers
 app.include_router(ws_router)
@@ -30,7 +30,7 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    from backend.cortex.memory.vector_store import HAS_CHROMA
+    from cortex.memory.vector_store import HAS_CHROMA
     return {
         "status": "online",
         "system": "OmniContext Cortex v2.0",

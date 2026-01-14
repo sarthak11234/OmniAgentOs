@@ -30,7 +30,7 @@ app.router.lifespan_context = lifespan
 app.include_router(api_router, prefix="/api/v1")
 
 # Include Cortex WebSocket Router (Unified Satellites Support)
-from backend.cortex.api.websocket import router as ws_router
+from cortex.api.websocket import router as ws_router
 app.include_router(ws_router)
 
 

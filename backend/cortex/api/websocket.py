@@ -1,5 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from backend.cortex.events.bus import bus
+from cortex.events.bus import bus
 
 router = APIRouter()
 
