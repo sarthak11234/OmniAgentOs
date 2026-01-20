@@ -33,6 +33,10 @@ app.include_router(api_router, prefix="/api/v1")
 from cortex.api.websocket import router as ws_router
 app.include_router(ws_router)
 
+# Include Cortex REST Router (Query Endpoint)
+from cortex.api.routes import router as cortex_router
+app.include_router(cortex_router)
+
 
 @app.on_event("startup")
 async def startup_event():
