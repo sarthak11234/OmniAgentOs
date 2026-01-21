@@ -40,5 +40,8 @@ class WebEvent(BaseEvent):
     type: Literal["web_context"]
     payload: WebPagePayload
 
+class HandshakeEvent(BaseEvent):
+    type: Literal["handshake"]
+
 # Union for strict typing
-CortexEvent = Union[AudioEvent, CodeEvent, WebEvent]
+CortexEvent = Union[AudioEvent, CodeEvent, WebEvent, HandshakeEvent]

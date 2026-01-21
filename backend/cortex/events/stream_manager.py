@@ -26,6 +26,8 @@ class StreamManager:
             await self._handle_audio(event_dict)
         elif event_type == "web_context":
             await self._handle_web(event_dict)
+        elif event_type == "handshake":
+            logger.info(f"Handshake successful from {source}")
         else:
             logger.warning(f"Unknown event type: {event_type}")
 

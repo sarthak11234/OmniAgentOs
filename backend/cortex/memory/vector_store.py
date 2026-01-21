@@ -19,14 +19,15 @@ class MemoryService:
     """
     Wraps ChromaDB (or Mock) to provide storage and retrieval for Cortex Events.
     """
-    def __init__(self, persist_path: str = "backend/data/chroma"):
-        self.persist_path = persist_path
+    def __init__(self, persist_path: str = None):
+        from cortex.core.config import config
+        self.persist_path = persist_path or config.CHROMA_PATH
         
         if HAS_CHROMA:
             # Ensure directory exists
-            os.makedirs(persist_path, exist_ok=True)
-            logger.info(f"Initializing ChromaDB at {persist_path}")
-            self.client = chromadb.PersistentClient(path=persist_path)
+            os.makedirs(self.persist_path, exist_ok=True)
+            logger.info(f"Initializing ChromaDB at {self.persist_path}")
+            self.client = chromadb.PersistentClient(path=self.persist_path)
             self.collection = self.client.get_or_create_collection(
                 name="cortex_events",
                 metadata={"hnsw:space": "cosine"}
@@ -77,7 +78,23 @@ class MemoryService:
                 r for r in self.mock_store 
                 if query.lower() in r["content"].lower()
             ]
-            return {"documents": [[m["content"] for m in matches[:limit]]]}
+            return {
+                "documents": [[m["content"] for m in matches[:limit]]],
+                "metadatas": [[m["metadata"] for m in matches[:limit]]]
+            }
+
+    def get_recent(self, limit: int = 10):
+        """
+        Fetch the most recent N items.
+        """
+        if HAS_CHROMA:
+            return self.collection.get(limit=limit)
+        else:
+            return {
+                "documents": [m["content"] for m in self.mock_store[-limit:]],
+                "metadatas": [m["metadata"] for m in self.mock_store[-limit:]],
+                "ids": [m["id"] for m in self.mock_store[-limit:]]
+            }
 
 # Global Instance
 memory = MemoryService()

@@ -206,10 +206,11 @@ OmniContext/
 
 ## 🗺 Roadmap
 
-*   **Phase 1: Cortex Foundation** (Current)
-    *   [ ] Event Bus Implementation.
-    *   [ ] ChromaDB Integration.
-    *   [ ] Streaming Whisper Pipeline.
+*   **Phase 1: Cortex Foundation** (Complete ✅)
+    *   [x] Event Bus Implementation.
+    *   [x] ChromaDB Integration.
+    *   [x] Streaming Whisper Pipeline (Initial).
+    *   [x] Integrated Gemini for Reasoning.
 *   **Phase 2: VS Code Satellite**
     *   [ ] Sidebar Chat UI.
     *   [ ] "Active File" Watcher.

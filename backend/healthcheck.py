@@ -10,7 +10,7 @@ def check_server_http():
     print("[1/3] Checking HTTP Health Endpoint...", end=" ")
     try:
         # Check the updated Unified API endpoint
-        with urllib.request.urlopen("http://localhost:8000/api/v1/health/health") as response:
+        with urllib.request.urlopen("http://localhost:8000/health") as response:
             if response.getcode() == 200:
                 print("✅ Online")
                 return True
