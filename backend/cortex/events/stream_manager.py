@@ -18,7 +18,6 @@ class StreamManager:
         event_type = event_dict.get("type")
         source = event_dict.get("source")
         
-        print(f"DEBUG: Backend received {event_type} from {source}", flush=True) # DEBUG LOG
         logger.info(f"Processing event: {event_type} from {source}")
 
         if event_type == "code_context":
