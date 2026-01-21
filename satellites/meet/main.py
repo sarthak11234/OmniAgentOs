@@ -72,6 +72,13 @@ class MeetSatellite:
                                 }
                             }
                             
+                            # Calculate volume for debugging
+                            import numpy as np
+                            data_np = np.frombuffer(chunk, dtype=np.int16)
+                            rms = np.sqrt(np.mean(data_np**2))
+                            if rms >= 0:  # Log everything
+                                logger.info(f"Sending audio chunk... Vol: {rms:.2f}")
+                            
                             await websocket.send(json.dumps(payload))
                             # Small sleep to prevent tight loop if audio is buffering
                             await asyncio.sleep(0.01) 
@@ -107,6 +114,9 @@ class MeetSatellite:
         asyncio.set_event_loop(loop)
         loop.run_until_complete(self.stream_audio())
 
-if __name__ == "__main__":
+def main():
     satellite = MeetSatellite()
     satellite.start()
+
+if __name__ == "__main__":
+    main()

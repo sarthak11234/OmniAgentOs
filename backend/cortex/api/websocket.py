@@ -14,6 +14,7 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             # Receive raw text (assuming JSON)
             data = await websocket.receive_text()
+            print(f"DEBUG: WebSocket received data: {data[:50]}...", flush=True) # DEBUG
             # Pass to Event Bus for processing
             await bus.handle_message(websocket, data)
     except WebSocketDisconnect:
