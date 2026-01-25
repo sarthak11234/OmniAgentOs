@@ -19,7 +19,8 @@
             "activitybar": [
                 {
                     "id": "omnicontext-view-container",
-                    "title": "OmniContext"
+                    "title": "OmniContext",
+                    "icon": "$(hubot)"
                 }
             ]
         },

@@ -2,12 +2,15 @@ import * as WebSocket from 'ws';
 import * as vscode from 'vscode';
 import { CortexEvent } from './types';
 
+type ConnectionCallback = (isConnected: boolean) => void;
+
 export class CortexClient {
     private ws: WebSocket | null = null;
     private url: string = 'ws://localhost:8000/ws/stream';
     private reconnectInterval: number = 5000;
-    private isConnected: boolean = false;
+    private _isConnected: boolean = false;
     private statusItem: vscode.StatusBarItem;
+    private connectionCallbacks: ConnectionCallback[] = [];
 
     constructor() {
         this.statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -16,21 +19,36 @@ export class CortexClient {
         this.connect();
     }
 
+    public onConnectionChange(callback: ConnectionCallback) {
+        this.connectionCallbacks.push(callback);
+    }
+
+    private notifyConnectionChange(isConnected: boolean) {
+        this._isConnected = isConnected;
+        for (const cb of this.connectionCallbacks) {
+            cb(isConnected);
+        }
+    }
+
+    public isConnectedNow(): boolean {
+        return this._isConnected;
+    }
+
     private connect() {
         try {
             this.ws = new WebSocket(this.url);
 
             this.ws.on('open', () => {
                 console.log('Connected to Cortex Brain');
-                this.isConnected = true;
                 this.statusItem.text = "$(rss) Cortex: Online";
+                this.notifyConnectionChange(true);
                 vscode.window.showInformationMessage('OmniContext: Connected to Brain 🧠');
             });
 
             this.ws.on('close', () => {
                 console.log('Disconnected from Cortex Brain');
-                this.isConnected = false;
                 this.statusItem.text = "$(circle-slash) Cortex: Offline";
+                this.notifyConnectionChange(false);
                 setTimeout(() => this.connect(), this.reconnectInterval);
             });
 
@@ -41,6 +59,7 @@ export class CortexClient {
 
         } catch (e) {
             console.error('Connection failed:', e);
+            this.notifyConnectionChange(false);
             setTimeout(() => this.connect(), this.reconnectInterval);
         }
     }
