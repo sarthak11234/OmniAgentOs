@@ -17,7 +17,7 @@ chromadb>=0.4.24
 # Make sure to install C++ compilers for llama-cpp-python
 # llama-cpp-python>=0.2.60
 openai-whisper>=20231117
-torch --index-url https://download.pytorch.org/whl/cu118  # Default to CUDA 11.8
+torch>=2.0.0
 
 # Utilities
 pydantic>=2.7.0
