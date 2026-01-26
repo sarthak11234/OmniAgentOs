@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.api.deps import get_db
+from app.api.deps import get_db, get_current_user_optional, get_user_id_or_default
 from pydantic import BaseModel
 from app.agents.text_agent import generate_text
 
@@ -18,12 +18,17 @@ class TextGenerationResponse(BaseModel):
 
 
 @router.post("/generate", response_model=TextGenerationResponse)
-async def generate_text_endpoint(request: TextGenerationRequest, db: Session = Depends(get_db)):
+async def generate_text_endpoint(
+    request: TextGenerationRequest,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user_optional)
+):
     """
     Generate text using Llama model
     
     Args:
         request: TextGenerationRequest with prompt and optional max_length
+        current_user: Optional authenticated user
     
     Returns:
         TextGenerationResponse with original prompt and generated text
@@ -40,8 +45,7 @@ async def generate_text_endpoint(request: TextGenerationRequest, db: Session = D
     from app.services.database_service import DatabaseService
     from app.db import models
     
-    # TODO: Get actual user_id from auth
-    user_id = 1
+    user_id = get_user_id_or_default(current_user)
     
     DatabaseService.create_result(
         session=db,

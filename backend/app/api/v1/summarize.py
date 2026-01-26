@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.api.deps import get_db
+from app.api.deps import get_db, get_current_user_optional, get_user_id_or_default
 from pydantic import BaseModel
 from app.agents.summarize_agent import summarize_text
 
@@ -20,12 +20,17 @@ class SummarizationResponse(BaseModel):
 
 
 @router.post("", response_model=SummarizationResponse)
-async def summarize_endpoint(request: SummarizationRequest, db: Session = Depends(get_db)):
+async def summarize_endpoint(
+    request: SummarizationRequest,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user_optional)
+):
     """
     Summarize text using BART model
     
     Args:
         request: SummarizationRequest with text and optional max_length
+        current_user: Optional authenticated user
     
     Returns:
         SummarizationResponse with original length, summary, and summary length
@@ -42,8 +47,7 @@ async def summarize_endpoint(request: SummarizationRequest, db: Session = Depend
     from app.services.database_service import DatabaseService
     from app.db import models
     
-    # TODO: Get actual user_id from auth
-    user_id = 1
+    user_id = get_user_id_or_default(current_user)
     
     DatabaseService.create_result(
         session=db,

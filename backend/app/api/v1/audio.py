@@ -1,8 +1,9 @@
 from fastapi import APIRouter, UploadFile, File, Depends
 from sqlalchemy.orm import Session
-from app.api.deps import get_db
+from app.api.deps import get_db, get_current_user_optional, get_user_id_or_default
 from pydantic import BaseModel
 from app.agents.audio_agent import transcribe_audio
+from typing import Optional
 
 router = APIRouter()
 
@@ -13,13 +14,18 @@ class TranscriptionResponse(BaseModel):
 
 
 @router.post("/transcribe", response_model=TranscriptionResponse)
-async def transcribe_endpoint(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def transcribe_endpoint(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user_optional)
+):
     """
     Transcribe audio file using Whisper model
     
     Args:
         file: Audio file upload
         db: Database session
+        current_user: Optional authenticated user
     
     Returns:
         TranscriptionResponse with filename and transcript
@@ -37,8 +43,7 @@ async def transcribe_endpoint(file: UploadFile = File(...), db: Session = Depend
         from app.services.database_service import DatabaseService
         from app.db import models
         
-        # TODO: Get actual user_id from auth
-        user_id = 1
+        user_id = get_user_id_or_default(current_user)
         
         DatabaseService.create_result(
             session=db,
