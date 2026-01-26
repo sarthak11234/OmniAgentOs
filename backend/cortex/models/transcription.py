@@ -1,25 +1,42 @@
-import whisper
 import os
-import torch
 import logging
-from cortex.core.config import config
 import numpy as np
-import base64
 
 logger = logging.getLogger("cortex.models.transcription")
 
+# Lazy imports for optional dependencies
+whisper = None
+torch = None
+
+
 class TranscriptionEngine:
     def __init__(self):
-        self.model_name = config.WHISPER_MODEL
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model = None
         self.initialized = False
+        self.device = "cpu"
+        self._load_model()
+    
+    def _load_model(self):
+        """Lazy load whisper model if available."""
+        global whisper, torch
         
         try:
+            import whisper as _whisper
+            import torch as _torch
+            whisper = _whisper
+            torch = _torch
+            
+            from cortex.core.config import config
+            self.model_name = config.WHISPER_MODEL
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+            
             logger.info(f"Loading Whisper model '{self.model_name}' on {self.device}...")
             self.model = whisper.load_model(self.model_name, device=self.device)
             self.initialized = True
             logger.info("Whisper model loaded successfully.")
+        except ImportError:
+            logger.warning("Whisper/torch not installed. Audio transcription disabled.")
+            logger.warning("Install with: pip install openai-whisper torch")
         except Exception as e:
             logger.error(f"Failed to load Whisper model: {e}")
 
@@ -29,7 +46,7 @@ class TranscriptionEngine:
         Expects 16kHz mono PCM audio.
         """
         if not self.initialized:
-            return ""
+            return "[Transcription unavailable - Whisper not installed]"
 
         try:
             # Convert bytes to numpy array
@@ -41,6 +58,7 @@ class TranscriptionEngine:
         except Exception as e:
             logger.error(f"Transcription error: {e}")
             return ""
+
 
 # Global Instance
 transcription_engine = TranscriptionEngine()

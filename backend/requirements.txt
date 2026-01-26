@@ -11,21 +11,18 @@ sqlalchemy>=2.0.0
 alembic>=1.13.0
 psycopg2-binary>=2.9.9
 chromadb>=0.4.24
-# pysqlite3-binary  # Uncomment if on Linux/Old Python
 
-# AI & Inference (High Performance)
-# Make sure to install C++ compilers for llama-cpp-python
-# llama-cpp-python>=0.2.60
-openai-whisper>=20231117
-torch>=2.0.0
+# AI & Inference
+numpy>=1.26.0
+google-genai>=0.3.0
 
-# Utilities
+# Auth & Utilities
 pydantic>=2.7.0
 pydantic-settings>=2.2.0
 python-dotenv>=1.0.1
-sounddevice>=0.4.6  # For Satellite-Meet (Audio Capture)
-numpy>=1.26.0
 passlib[bcrypt]>=1.7.4
 python-jose[cryptography]>=3.3.0
 email-validator>=2.1.0
-google-genai>=0.3.0
+
+# Optional: Heavy ML deps (install separately for local dev)
+# pip install torch openai-whisper
