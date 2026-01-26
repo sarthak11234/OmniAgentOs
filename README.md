@@ -206,17 +206,60 @@ OmniContext/
 
 ## 🗺 Roadmap
 
-*   **Phase 1: Cortex Foundation** (Complete ✅)
-    *   [x] Event Bus Implementation.
-    *   [x] ChromaDB Integration.
-    *   [x] Streaming Whisper Pipeline (Initial).
-    *   [x] Integrated Gemini for Reasoning.
-*   **Phase 2: VS Code Satellite**
-    *   [ ] Sidebar Chat UI.
-    *   [ ] "Active File" Watcher.
-*   **Phase 3: Audio Satellite**
-    *   [ ] System Audio Capture.
-    *   [ ] Voice Activity Detection.
+*   **Phase 1: Cortex Foundation** ✅
+    *   [x] Event Bus Implementation
+    *   [x] ChromaDB Integration
+    *   [x] Streaming Whisper Pipeline
+    *   [x] Gemini LLM Integration
+
+*   **Phase 2: VS Code Satellite** ✅
+    *   [x] Sidebar Chat UI with loading states
+    *   [x] Connection status badge
+    *   [x] Copy/Insert action buttons
+    *   [x] Active File context streaming
+
+*   **Phase 3: Audio Satellite** ✅
+    *   [x] Voice Activity Detection (VAD)
+    *   [x] Dynamic tray icon (speaking/idle/offline)
+    *   [x] Pause/Resume recording
+
+*   **Phase 4: Browser Extension** ✅
+    *   [x] Chrome Manifest V3 extension
+    *   [x] Page content scraping
+    *   [x] Popup UI with status
+
+*   **Phase 5: Database & Auth** ✅
+    *   [x] JWT authentication
+    *   [x] Result persistence
+    *   [x] Optional auth for ML endpoints
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# 1. Start Backend
+cd backend
+pip install -r requirements.txt
+python -m uvicorn cortex.main:app --reload --port 8000
+
+# 2. Start Frontend
+cd frontend
+npm install && npm run dev
+
+# 3. VS Code Extension
+# Open satellites/code in VS Code, press F5
+
+# 4. Audio Satellite
+cd satellites/meet
+pip install -r requirements.txt
+python main.py
+
+# 5. Browser Extension
+# Go to chrome://extensions → Enable Developer Mode
+# Click "Load unpacked" → Select satellites/web folder
+```
 
 ---
 *Built with ❤️ by the Open Source Community*
+
