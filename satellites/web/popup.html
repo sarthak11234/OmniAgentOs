@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniContext</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            width: 300px;
+            min-height: 200px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            padding: 16px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .header h1 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .logo {
+            font-size: 24px;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #f44336;
+        }
+        
+        .status-dot.online {
+            background: #4caf50;
+        }
+        
+        .status-text {
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .page-info {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .page-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .page-url {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .capture-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a3aa 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        
+        .capture-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+        
+        .capture-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            display: none;
+        }
+        
+        .result.success {
+            display: block;
+            background: rgba(76, 175, 80, 0.2);
+            color: #81c784;
+        }
+        
+        .result.error {
+            display: block;
+            background: rgba(244, 67, 54, 0.2);
+            color: #e57373;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="logo">🧠</span>
+        <h1>OmniContext Web</h1>
+    </div>
+    
+    <div class="status">
+        <span id="statusDot" class="status-dot"></span>
+        <span id="statusText" class="status-text">Checking connection...</span>
+    </div>
+    
+    <div class="page-info">
+        <div id="pageTitle" class="page-title">Loading...</div>
+        <div id="pageUrl" class="page-url"></div>
+    </div>
+    
+    <button id="captureBtn" class="capture-btn" disabled>
+        📷 Capture Page Context
+    </button>
+    
+    <div id="result" class="result"></div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
