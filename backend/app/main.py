@@ -38,6 +38,22 @@ from cortex.api.routes import router as cortex_router
 app.include_router(cortex_router)
 
 
+# Root endpoints for E2E healthcheck compatibility
+@app.get("/")
+async def root():
+    from cortex.memory.vector_store import HAS_CHROMA
+    return {
+        "status": "online",
+        "system": "OmniAgentOS v2.0",
+        "memory": "ChromaDB" if HAS_CHROMA else "Mock"
+    }
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize database and ML models on startup"""
