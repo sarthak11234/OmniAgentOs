@@ -63,10 +63,10 @@ try:
         def text_generator(self):
             """Lazy load text generation pipeline"""
             if self._text_generator is None:
-                print("Loading GPT-2 model (distilled)...")
+                print("Loading GPT-2 model...")
                 self._text_generator = pipeline(
                     "text-generation",
-                    model="distilgpt2",
+                    model="gpt2",  # Standard GPT-2 (124M params) - reliable
                     device=0 if self.device == "cuda" else -1
                 )
             return self._text_generator
@@ -108,9 +108,24 @@ try:
         
         async def generate_text(self, prompt: str, max_length: int = 512) -> str:
             """Generate text using local GPT-2 model"""
-            result = self.text_generator(prompt, max_length=max_length, num_return_sequences=1)
-            if result and len(result) > 0:
-                return result[0].get("generated_text", "")
+            try:
+                result = self.text_generator(
+                    prompt,
+                    max_new_tokens=min(max_length, 150),  # Limit for safety
+                    num_return_sequences=1,
+                    do_sample=True,
+                    temperature=0.9,              # Slightly higher for creativity
+                    top_p=0.92,
+                    top_k=50,
+                    repetition_penalty=1.5,       # Strong penalty to avoid loops
+                    no_repeat_ngram_size=3,       # Prevent repeating 3-word phrases
+                    pad_token_id=50256
+                )
+                if result and len(result) > 0:
+                    return result[0].get("generated_text", "")
+            except Exception as e:
+                print(f"Generation error: {e}")
+                return f"Error generating text: {str(e)}"
             return ""
         
         async def summarize_text(self, text: str, max_length: int = 150) -> str:
