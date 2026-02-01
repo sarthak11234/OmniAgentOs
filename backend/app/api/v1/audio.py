@@ -39,21 +39,24 @@ async def transcribe_endpoint(
         # Calculate processing time
         elapsed_time = int(time.perf_counter() - start_time)
         
-        # Save result to database
-        from app.services.database_service import DatabaseService
-        from app.db import models
-        
-        user_id = get_user_id_or_default(current_user)
-        
-        DatabaseService.create_result(
-            session=db,
-            user_id=user_id,
-            task_type=models.TaskType.TRANSCRIPTION,
-            input_filename=file.filename,
-            output_text=transcript,
-            model_used="whisper-large-v3",
-            processing_time_seconds=elapsed_time
-        )
+        # Try to save result to database (optional - won't fail the request)
+        try:
+            from app.services.database_service import DatabaseService
+            from app.db import models
+            
+            user_id = get_user_id_or_default(current_user)
+            
+            DatabaseService.create_result(
+                session=db,
+                user_id=user_id,
+                task_type=models.TaskType.TRANSCRIPTION,
+                input_filename=file.filename,
+                output_text=transcript,
+                model_used="whisper-tiny",
+                processing_time_seconds=elapsed_time
+            )
+        except Exception as db_error:
+            print(f"Warning: Could not save result to database: {db_error}")
         
         return TranscriptionResponse(
             filename=file.filename,

@@ -10,19 +10,14 @@ const nextConfig = {
       beforeFiles: [
         {
           source: '/api/v1/:path*',
-          destination: 'http://localhost:8000/api/v1/:path*',
+          // Use 127.0.0.1 instead of localhost to avoid IPv6 resolution issues on Windows
+          destination: 'http://127.0.0.1:8000/api/v1/:path*',
           basePath: false
         }
       ]
     }
-  },
-  // Increase timeout for long-running transcription requests
-  httpAgentOptions: {
-    timeout: 300000 // 5 minutes
-  },
-  httpsAgentOptions: {
-    timeout: 300000 // 5 minutes
   }
 }
 
 module.exports = nextConfig
+

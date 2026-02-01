@@ -36,28 +36,35 @@ async def generate_text_endpoint(
     import time
     start_time = time.perf_counter()
     
-    result = await generate_text(request.prompt, request.max_length)
-    
-    # Calculate processing time
-    elapsed_time = int(time.perf_counter() - start_time)
-    
-    # Save result to database
-    from app.services.database_service import DatabaseService
-    from app.db import models
-    
-    user_id = get_user_id_or_default(current_user)
-    
-    DatabaseService.create_result(
-        session=db,
-        user_id=user_id,
-        task_type=models.TaskType.GENERATION,
-        input_text=request.prompt,
-        output_text=result,
-        model_used="llama-2-7b-chat",
-        processing_time_seconds=elapsed_time
-    )
-    
-    return TextGenerationResponse(
-        prompt=request.prompt,
-        generated_text=result
-    )
+    try:
+        result = await generate_text(request.prompt, request.max_length)
+        
+        # Calculate processing time
+        elapsed_time = int(time.perf_counter() - start_time)
+        
+        # Try to save result to database (optional - won't fail the request)
+        try:
+            from app.services.database_service import DatabaseService
+            from app.db import models
+            
+            user_id = get_user_id_or_default(current_user)
+            
+            DatabaseService.create_result(
+                session=db,
+                user_id=user_id,
+                task_type=models.TaskType.GENERATION,
+                input_text=request.prompt,
+                output_text=result,
+                model_used="distilgpt2",
+                processing_time_seconds=elapsed_time
+            )
+        except Exception as db_error:
+            print(f"Warning: Could not save result to database: {db_error}")
+        
+        return TextGenerationResponse(
+            prompt=request.prompt,
+            generated_text=result
+        )
+    except Exception as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=f"Text generation failed: {str(e)}")

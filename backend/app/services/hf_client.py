@@ -85,22 +85,43 @@ try:
         
         async def transcribe_audio(self, file) -> str:
             """Transcribe audio using local Whisper model"""
-            # ... (Implementation omitted for brevity, logic moved to separate method if needed, 
-            # but for this replacement we'll assume the original logic is preserved in the real class 
-            # if we didn't replace the whole file. 
-            # Wait, replace_file_content replaces the BLOCK. I need to be careful not to delete the methods.)
-            # The user instruction was to mock it. The cleanest way is to use the try/except block 
-            # to define the class differently.
+            import tempfile
+            import os
             
-            # To avoid deleting the method bodies of the original class which are complex, 
-            # I will wrap the imports and class definition.
-            pass 
-
-    # Since replace_file_content replaces the target, and the target is the WHOLE class from line 14 to 170... 
-    # I should re-write the whole class? No, that's huge. 
-    # Let's change the strategy. I will Wrap the imports at the top and set a flag.
-    # Then in the methods, check the flag.
-    pass
+            # Read file content
+            content = await file.read()
+            
+            # Save to temporary file
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+                tmp.write(content)
+                tmp_path = tmp.name
+            
+            try:
+                # Run transcription
+                result = self.transcriber(tmp_path)
+                transcript = result.get("text", "") if isinstance(result, dict) else str(result)
+                return transcript.strip()
+            finally:
+                # Cleanup temp file
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
+        
+        async def generate_text(self, prompt: str, max_length: int = 512) -> str:
+            """Generate text using local GPT-2 model"""
+            result = self.text_generator(prompt, max_length=max_length, num_return_sequences=1)
+            if result and len(result) > 0:
+                return result[0].get("generated_text", "")
+            return ""
+        
+        async def summarize_text(self, text: str, max_length: int = 150) -> str:
+            """Summarize text using local BART model"""
+            # Ensure text is long enough for summarization
+            if len(text.split()) < 30:
+                return text
+            result = self.summarizer(text, max_length=max_length, min_length=30, do_sample=False)
+            if result and len(result) > 0:
+                return result[0].get("summary_text", "")
+            return ""
 
 except ImportError:
     HFClient = MockClient
