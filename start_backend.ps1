@@ -5,5 +5,5 @@ $env:PYTHONPATH = $BackendDir
 Write-Host "Changing directory to $BackendDir..."
 Set-Location -Path $BackendDir
 
-Write-Host "Starting Cortex Backend..."
-python -m cortex.main
+Write-Host "Starting OmniAgentOS Backend..."
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000

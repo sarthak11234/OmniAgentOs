@@ -1,101 +1,78 @@
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.api.api_router import api_router
-from app.services.hf_client import hf_client
 
-app = FastAPI(title="OmniAgentOS API")
+logger = logging.getLogger("omniagent")
 
-# Increase max upload size to 100MB
+
+async def _startup():
+    """Initialize database on startup."""
+    logger.info("Starting OmniAgentOS Backend...")
+
+    # Run database migrations
+    try:
+        logger.info("Running database migrations...")
+        from app.db.migrate import run_migrations_and_seed
+        run_migrations_and_seed()
+    except Exception as e:
+        logger.warning(f"Database migration warning: {e} — continuing anyway")
+
+    logger.info("Backend initialized successfully!")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await _startup()
+    yield
+
+
+app = FastAPI(
+    title="OmniAgentOS API",
+    description="Multimodal AI Orchestration API",
+    version="2.0.0",
+    lifespan=lifespan,
+)
+
+# CORS — allow satellites and frontend to connect
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Restrict in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Configure max upload size
-from contextlib import asynccontextmanager
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup
-    await startup_event()
-    yield
-    # Shutdown
-    pass
-
-app.router.lifespan_context = lifespan
-
+# REST API v1 (auth, audio, text, summarize, results, health)
 app.include_router(api_router, prefix="/api/v1")
 
-# Include Cortex WebSocket Router (Unified Satellites Support)
+# Cortex WebSocket (satellite connections)
 from cortex.api.websocket import router as ws_router
 app.include_router(ws_router)
 
-# Include Cortex REST Router (Query Endpoint)
+# Cortex REST (RAG query, context, memory)
 from cortex.api.routes import router as cortex_router
 app.include_router(cortex_router)
 
 
-# Root endpoints for E2E healthcheck compatibility
 @app.get("/")
 async def root():
+    """Root endpoint — system status overview."""
     from cortex.memory.vector_store import HAS_CHROMA
+    from cortex.models.llm import llm_engine
     return {
         "status": "online",
         "system": "OmniAgentOS v2.0",
-        "memory": "ChromaDB" if HAS_CHROMA else "Mock"
+        "modules": {
+            "memory": "ChromaDB" if HAS_CHROMA else "Mock",
+            "llm": "Gemini (Active)" if llm_engine.initialized else "Inactive",
+        },
     }
 
 
 @app.get("/health")
 async def health():
     return {"status": "ok"}
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database and ML models on startup"""
-    print("\n" + "="*60)
-    print("🚀 Starting OmniAgentOS Backend...")
-    print("="*60)
-    
-    # Run database migrations first
-    try:
-        print("\n🗄️  Running database migrations...")
-        from app.db.migrate import run_migrations_and_seed
-        run_migrations_and_seed()
-    except Exception as e:
-        print(f"⚠️  Database migration warning: {e}")
-        print("⚠️  Continuing anyway - some features may be unavailable")
-    
-    # Initialize ML models
-    print("\n" + "="*60)
-    print("🤖 Initializing ML Models...")
-    print("="*60)
-    
-    # try:
-    #     print("\n🎵 Loading Audio Transcription Model (Whisper-small)...")
-    #     _ = hf_client.transcriber
-    #     print("✅ Audio Transcription Model loaded!")
-    # except Exception as e:
-    #     print(f"⚠️  Audio Transcription Model failed: {e}")
-
-    # try:
-    #     print("\n📝 Loading Text Generation Model (GPT-2)...")
-    #     _ = hf_client.text_generator
-    #     print("✅ Text Generation Model loaded!")
-    # except Exception as e:
-    #     print(f"⚠️  Text Generation Model failed: {e}")
-    
-    # try:
-    #     print("\n📊 Loading Summarization Model (BART)...")
-    #     _ = hf_client.summarizer
-    #     print("✅ Summarization Model loaded!")
-    # except Exception as e:
-    #     print(f"⚠️  Summarization Model failed: {e}")
-    
-    print("\n" + "="*60)
-    print("✨ Backend initialized successfully!")
-    print("="*60 + "\n")
