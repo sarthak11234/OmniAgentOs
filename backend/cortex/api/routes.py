@@ -75,16 +75,15 @@ async def add_context(request: ContextAddRequest):
     logger.info(f"Added context from {request.filename}")
     return {"status": "success", "filename": request.filename}
 
-@router.post("/auth/login", response_model=LoginResponse)
+@router.post("/auth/login")
 async def login(request: LoginRequest):
     """
-    Simple mock authentication.
+    Deprecated: Use /api/v1/auth/login for real authentication.
     """
-    # In a real system, verify password and sign JWT
-    if request.password == "omni123":
-        return LoginResponse(token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.VALID_TOKEN")
-    
-    raise HTTPException(status_code=401, detail="Invalid credentials")
+    raise HTTPException(
+        status_code=410,
+        detail="This endpoint is deprecated. Use /api/v1/auth/login instead."
+    )
 
 @router.get("/memory/recent")
 async def get_recent_memory(limit: int = 10):

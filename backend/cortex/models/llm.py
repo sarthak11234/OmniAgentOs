@@ -48,6 +48,8 @@ class LLMEngine:
             import traceback
             error_details = traceback.format_exc()
             logger.error(f"Error during LLM generation: {error_details}")
+            return f"Error: {str(e)}"
+
     async def summarize(self, text: str, max_words: int = 100) -> str:
         if not self.initialized:
             return "Error: LLM Engine not initialized."

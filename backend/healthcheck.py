@@ -7,7 +7,6 @@ import urllib.request
 
 def check_server_http():
     print("[1/3] Checking HTTP Health Endpoint...", end=" ")
-    print("[1/3] Checking HTTP Health Endpoint...", end=" ")
     try:
         # Check the updated Unified API endpoint
         with urllib.request.urlopen("http://localhost:8000/health") as response:
