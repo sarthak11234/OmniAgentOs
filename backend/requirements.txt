@@ -8,8 +8,6 @@ websockets>=12.0
 
 # Database & Vector Store
 sqlalchemy>=2.0.0
-alembic>=1.13.0
-psycopg2-binary>=2.9.9
 chromadb>=0.4.24
 
 # AI & Inference
@@ -24,5 +22,11 @@ passlib[bcrypt]>=1.7.4
 python-jose[cryptography]>=3.3.0
 email-validator>=2.1.0
 
+# Testing
+pytest>=8.0.0
+httpx>=0.27.0
+
 # Optional: Heavy ML deps (install separately for local dev)
-# pip install torch openai-whisper
+# pip install torch openai-whisper transformers
+# Optional: Postgres driver (for Docker/production)
+# pip install psycopg2-binary>=2.9.9 alembic>=1.13.0
