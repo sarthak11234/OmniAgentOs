@@ -241,7 +241,7 @@ OmniContext/
 # 1. Start Backend
 cd backend
 pip install -r requirements.txt
-python -m uvicorn cortex.main:app --reload --port 8000
+python -m uvicorn app.main:app --reload --port 8000
 
 # 2. Start Frontend
 cd frontend
@@ -260,6 +260,15 @@ python main.py
 # Click "Load unpacked" → Select satellites/web folder
 ```
 
+## 🧪 Run Tests
+
+```bash
+cd backend
+pip install pytest httpx
+python -m pytest tests/ -v
+```
+
 ---
 *Built with ❤️ by the Open Source Community*
+
 
