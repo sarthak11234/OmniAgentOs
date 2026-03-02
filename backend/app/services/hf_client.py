@@ -2,11 +2,14 @@ import os
 from typing import Optional
 import io
 import tempfile
+import logging
+
+logger = logging.getLogger("omniagent.ml")
 
 # Mock implementations for Lite Mode
 class MockClient:
     def __init__(self):
-        print("⚠️ Running in LITE MODE (No ML dependencies installed)")
+        logger.warning("Running in LITE MODE (No ML dependencies installed)")
         
     @property
     def transcriber(self): return self
@@ -40,7 +43,7 @@ try:
         
         def __init__(self):
             self.device = DEVICE
-            print(f"Using device: {self.device}")
+            logger.info(f"Using device: {self.device}")
             
             # Initialize pipelines lazily (on first use)
             self._transcriber = None
@@ -51,7 +54,7 @@ try:
         def transcriber(self):
             """Lazy load speech recognition pipeline"""
             if self._transcriber is None:
-                print("Loading Whisper model (tiny)...")
+                logger.info("Loading Whisper model (tiny)...")
                 self._transcriber = pipeline(
                     "automatic-speech-recognition",
                     model="openai/whisper-tiny",
@@ -63,7 +66,7 @@ try:
         def text_generator(self):
             """Lazy load text generation pipeline"""
             if self._text_generator is None:
-                print("Loading GPT-2 model...")
+                logger.info("Loading GPT-2 model...")
                 self._text_generator = pipeline(
                     "text-generation",
                     model="gpt2",  # Standard GPT-2 (124M params) - reliable
@@ -75,7 +78,7 @@ try:
         def summarizer(self):
             """Lazy load summarization pipeline"""
             if self._summarizer is None:
-                print("Loading BART model (distilled)...")
+                logger.info("Loading BART model (distilled)...")
                 self._summarizer = pipeline(
                     "summarization",
                     model="sshleifer/distilbart-cnn-12-6",
@@ -124,7 +127,7 @@ try:
                 if result and len(result) > 0:
                     return result[0].get("generated_text", "")
             except Exception as e:
-                print(f"Generation error: {e}")
+                logger.error(f"Generation error: {e}")
                 return f"Error generating text: {str(e)}"
             return ""
         
